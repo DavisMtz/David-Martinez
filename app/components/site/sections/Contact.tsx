@@ -6,6 +6,7 @@ import { useSite } from "../context";
 import { Container } from "../Container";
 import { Reveal } from "../Reveal";
 import { Magnetic } from "../Magnetic";
+import { SocialIcon } from "../SocialIcon";
 
 interface ContactContent {
   body: string;
@@ -53,11 +54,11 @@ export function Contact({ section, index }: { section: Section; index: number })
                 </Magnetic>
               </div>
             )}
-            <ul data-reveal className="mt-8 flex flex-wrap gap-x-6 gap-y-3 font-mono text-[11px] uppercase tracking-[0.2em]">
+            <ul data-reveal className="mt-8 flex flex-wrap gap-3">
               {wa && (
                 <li>
-                  <a href={wa} target="_blank" rel="noreferrer" className="link-underline">
-                    WhatsApp ↗
+                  <a href={wa} target="_blank" rel="noreferrer" className="social-chip social-chip--lg" aria-label="WhatsApp" title="WhatsApp">
+                    <SocialIcon name="whatsapp" className="h-5 w-5" />
                   </a>
                 </li>
               )}
@@ -65,15 +66,15 @@ export function Contact({ section, index }: { section: Section; index: number })
                 .filter((s) => !s.url.startsWith("mailto:"))
                 .map((s) => (
                   <li key={s.url}>
-                    <a href={s.url} target="_blank" rel="noreferrer" className="link-underline">
-                      {s.label} ↗
+                    <a href={s.url} target="_blank" rel="noreferrer" className="social-chip social-chip--lg" aria-label={s.label} title={s.label}>
+                      <SocialIcon url={s.url} label={s.label} className="h-5 w-5" />
                     </a>
                   </li>
                 ))}
               {c.links.map((l) => (
                 <li key={l.url}>
-                  <a href={l.url} target="_blank" rel="noreferrer" className="link-underline">
-                    {l.label} ↗
+                  <a href={l.url} target="_blank" rel="noreferrer" className="social-chip social-chip--lg" aria-label={l.label} title={l.label}>
+                    <SocialIcon url={l.url} label={l.label} className="h-5 w-5" />
                   </a>
                 </li>
               ))}

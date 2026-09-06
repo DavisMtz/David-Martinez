@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router";
 import { useSite } from "./context";
 import { Magnetic } from "./Magnetic";
+import { SocialIcon } from "./SocialIcon";
 import { cx } from "~/lib/utils";
 
 export interface NavItem {
@@ -82,10 +83,18 @@ export function Nav({ items }: { items: NavItem[] }) {
             </a>
           ))}
         </nav>
-        <div className="mt-10 flex flex-col gap-3 font-mono text-xs uppercase tracking-[0.2em] text-muted">
-          {settings.socials.slice(0, 6).map((s) => (
-            <a key={s.url} href={s.url} target="_blank" rel="noreferrer" className="hover:text-paper">
-              {s.label} ↗
+        <div className="mt-10 flex flex-wrap gap-3">
+          {settings.socials.map((s) => (
+            <a
+              key={s.url}
+              href={s.url}
+              target="_blank"
+              rel="noreferrer"
+              className="social-chip"
+              aria-label={s.label}
+              title={s.label}
+            >
+              <SocialIcon url={s.url} label={s.label} className="h-[18px] w-[18px]" />
             </a>
           ))}
         </div>

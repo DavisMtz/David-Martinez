@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { useSite } from "./context";
+import { SocialIcon } from "./SocialIcon";
 
 function LocalTime() {
   const [time, setTime] = useState<string>("");
@@ -33,9 +34,10 @@ export function Footer() {
             <ul className="flex flex-col gap-2">
               {settings.socials.map((s) => (
                 <li key={s.url}>
-                  <a href={s.url} target="_blank" rel="noreferrer" className="link-underline text-sm">
-                    {s.label}
-                    {s.handle ? <span className="ml-2 font-mono text-xs text-muted">{s.handle}</span> : null}
+                  <a href={s.url} target="_blank" rel="noreferrer" className="social-row group">
+                    <SocialIcon url={s.url} label={s.label} className="social-row-icon" />
+                    <span className="link-underline text-sm">{s.label}</span>
+                    {s.handle ? <span className="font-mono text-xs text-muted">{s.handle}</span> : null}
                   </a>
                 </li>
               ))}
