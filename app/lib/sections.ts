@@ -206,6 +206,48 @@ export const SECTION_SPECS: Record<SectionType, SectionSpec> = {
       },
     ],
   },
+  quotes: {
+    type: "quotes",
+    defaults: {
+      items: [],
+      source: { title: "", subtitle: "", year: "", note: "", url: "" },
+      layout: "stack",
+    },
+    fields: [
+      {
+        key: "items",
+        label: "Citas",
+        kind: "objects",
+        help: "Cada cita se muestra en grande. El origen es opcional y aparece debajo en letra pequeña.",
+        fields: [
+          { key: "text", label: "Cita", kind: "textarea" },
+          { key: "origin", label: "Origen (capítulo, año…)", kind: "text" },
+        ],
+      },
+      {
+        key: "source",
+        label: "Ficha de la obra",
+        kind: "objects",
+        help: "Opcional. Se muestra como una tarjeta al final de la sección.",
+        fields: [
+          { key: "title", label: "Título", kind: "text" },
+          { key: "subtitle", label: "Subtítulo", kind: "text" },
+          { key: "year", label: "Año", kind: "text" },
+          { key: "note", label: "Nota (estado, extensión…)", kind: "textarea" },
+          { key: "url", label: "Enlace (opcional)", kind: "text" },
+        ],
+      },
+      {
+        key: "layout",
+        label: "Distribución",
+        kind: "select",
+        options: [
+          { value: "stack", label: "Una debajo de otra" },
+          { value: "grid", label: "Cuadrícula" },
+        ],
+      },
+    ],
+  },
   text: {
     type: "text",
     defaults: { body: "", align: "left", size: "lg" },

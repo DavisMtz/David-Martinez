@@ -7,6 +7,7 @@ export type SectionType =
   | "gallery"
   | "marquee"
   | "stats"
+  | "quotes"
   | "text"
   | "contact";
 
@@ -19,6 +20,7 @@ export const SECTION_TYPES: { value: SectionType; label: string; description: st
   { value: "gallery", label: "Galería", description: "Colección de imágenes de Cloudinary." },
   { value: "marquee", label: "Marquesina", description: "Cinta de texto en movimiento continuo." },
   { value: "stats", label: "Cifras", description: "Contadores animados con datos clave." },
+  { value: "quotes", label: "Citas", description: "Frases propias en tipografía grande, con ficha de la obra de la que salen." },
   { value: "text", label: "Texto libre", description: "Bloque editorial en Markdown." },
   { value: "contact", label: "Contacto", description: "Cierre con formulario y enlaces." },
 ];
