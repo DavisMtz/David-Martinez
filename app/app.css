@@ -11,7 +11,7 @@
   --color-accent-2: #7c8cff;
   --color-accent-3: #c6ff3d;
 
-  --font-display: "Syne", "Geist", system-ui, sans-serif;
+  --font-display: "Archivo", "Geist", system-ui, sans-serif;
   --font-sans: "Geist", "Inter", system-ui, sans-serif;
   --font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 }
