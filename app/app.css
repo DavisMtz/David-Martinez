@@ -166,14 +166,20 @@
 }
 
 /* Reveal helpers */
-.js [data-reveal] {
-  opacity: 0;
-  transform: translateY(28px);
-  will-change: opacity, transform;
-}
-.js .hero-fade {
-  opacity: 0;
-  transform: translateY(18px);
+/* Solo se ocultan si hay JavaScript para volver a mostrarlos. Sin script, el
+   contenido se ve de inmediato. Evita tocar el DOM antes de hidratar. */
+@media (scripting: enabled) {
+  [data-reveal] {
+    opacity: 0;
+    transform: translateY(34px);
+    filter: blur(4px);
+    will-change: opacity, transform, filter;
+  }
+  .hero-fade {
+    opacity: 0;
+    transform: translateY(22px);
+    filter: blur(4px);
+  }
 }
 .split-line {
   padding-bottom: 0.08em;
@@ -613,6 +619,106 @@
 }
 @media (min-width: 768px) { .quote-source { padding: 2.5rem 3rem; } }
 
+/* ---------- Cine ---------- */
+.intro-lock, .intro-lock body { overflow: hidden !important; }
+
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  visibility: hidden;
+  pointer-events: none;
+}
+.intro-shutter {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50.5%;
+  background: var(--color-ink);
+}
+.intro-shutter--top { top: 0; }
+.intro-shutter--bottom { bottom: 0; }
+.intro-content {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.75rem;
+  padding: 0 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+@media (min-width: 768px) { .intro-content { padding: 0 2.5rem; } }
+.intro-name {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 0.35em;
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 0.95;
+  font-size: clamp(2.25rem, 7vw, 6rem);
+}
+.intro-word-mask { display: block; overflow: hidden; padding-bottom: 0.06em; }
+.intro-word { display: block; }
+.intro-rule {
+  height: 1px;
+  width: 100%;
+  background: var(--color-accent);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+.intro-meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  opacity: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.intro-counter {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.5rem, 4vw, 3rem);
+  letter-spacing: -0.03em;
+  color: var(--color-paper);
+}
+
+/* Viñeta: cierra el encuadre por los bordes. */
+.vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 88;
+  pointer-events: none;
+  background: radial-gradient(120% 85% at 50% 45%, transparent 55%, rgba(0, 0, 0, 0.28) 88%, rgba(0, 0, 0, 0.5) 100%);
+}
+
+/* Cortina entre páginas. */
+.page-curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  pointer-events: none;
+  transform: translateY(-100%);
+  background: var(--color-ink);
+  border-bottom: 1px solid var(--color-accent);
+}
+
+/* Las secciones se transforman al entrar y salir del encuadre. */
+[data-section] > * { will-change: auto; }
+
+@media (prefers-reduced-motion: reduce) {
+  .vignette { display: none; }
+  .page-curtain { display: none; }
+}
+
 /* Social icons */
 .social-row {
   display: flex;
@@ -656,7 +762,9 @@
 /* Grain */
 .grain {
   position: fixed;
-  inset: -50%;
+  /* El margen solo tiene que cubrir el desplazamiento de la animación (±6%).
+     Estaba en -50%, es decir cuatro veces el área de pantalla mezclada. */
+  inset: -10%;
   z-index: 90;
   pointer-events: none;
   opacity: 0.05;

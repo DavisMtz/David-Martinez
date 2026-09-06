@@ -101,6 +101,42 @@ export function Projects({ section, index, projects }: { section: Section; index
           },
         });
       });
+      // Profundidad de campo: la tarjeta del centro está enfocada, las demás se alejan.
+      mm.add("(min-width: 1024px) and (prefers-reduced-motion: no-preference)", () => {
+        const cards = gsap.utils.toArray<HTMLElement>(".rail-card", root.current);
+        if (!cards.length) return;
+        const focus = () => {
+          const mid = window.innerWidth / 2;
+          cards.forEach((card) => {
+            const r = card.getBoundingClientRect();
+            const d = Math.abs(r.left + r.width / 2 - mid) / window.innerWidth;
+            const k = gsap.utils.clamp(0, 1, d);
+            gsap.set(card, { scale: 1 - k * 0.1, opacity: 1 - k * 0.55 });
+          });
+        };
+        focus();
+        // Solo se recalcula mientras el riel está en pantalla: antes leía la
+        // posición de cada tarjeta en todos los fotogramas de toda la página.
+        let running = false;
+        const start = () => {
+          if (running) return;
+          running = true;
+          gsap.ticker.add(focus);
+        };
+        const stop = () => {
+          if (!running) return;
+          running = false;
+          gsap.ticker.remove(focus);
+        };
+        const io = new IntersectionObserver(([e]) => (e.isIntersecting ? start() : stop()), { rootMargin: "20% 0px" });
+        if (root.current) io.observe(root.current);
+        return () => {
+          io.disconnect();
+          stop();
+          gsap.set(cards, { clearProps: "scale,opacity" });
+        };
+      });
+
       return () => mm.revert();
     },
     { scope: root, dependencies: [c.layout, list.length] },

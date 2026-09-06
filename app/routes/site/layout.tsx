@@ -8,9 +8,12 @@ import { Nav, type NavItem } from "~/components/site/Nav";
 import { Footer } from "~/components/site/Footer";
 import { Grain } from "~/components/site/Grain";
 import { ScrollReveals } from "~/components/site/ScrollReveals";
+import { ScrollCinema } from "~/components/site/ScrollCinema";
 import { SECTION_TYPES } from "~/lib/types";
 
 const SmoothScroll = lazy(() => import("~/components/site/SmoothScroll.client"));
+const Intro = lazy(() => import("~/components/site/Intro.client"));
+const PageTransition = lazy(() => import("~/components/site/PageTransition.client"));
 
 const NAV_TYPES = new Set(["about", "projects", "experience", "skills", "gallery", "contact"]);
 
@@ -43,14 +46,18 @@ export default function SiteLayout({ loaderData }: Route.ComponentProps) {
       <style dangerouslySetInnerHTML={{ __html: themeVars }} />
       <ClientOnly>
         <SmoothScroll />
+        <Intro />
+        <PageTransition />
       </ClientOnly>
       <Nav items={navItems} />
       <div className="site-page">
         <Outlet />
       </div>
       <Footer />
+      <div className="vignette" aria-hidden="true" />
       <Grain />
       <ScrollReveals />
+      <ScrollCinema />
     </SiteContext.Provider>
   );
 }

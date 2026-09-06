@@ -30,7 +30,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body className="bg-ink text-paper antialiased">
-        <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
         {children}
         <ScrollRestoration />
         <Scripts />

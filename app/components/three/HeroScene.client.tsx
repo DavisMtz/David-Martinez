@@ -181,6 +181,14 @@ function Lattice({ accent, accent2, cols, rows }: LatticeProps) {
 
   useFrame((state, delta) => {
     const t = state.clock.elapsedTime;
+
+    // Deriva de cámara: un movimiento lento y continuo, como una toma sostenida.
+    const scroll = typeof window !== "undefined" ? Math.min(window.scrollY / Math.max(window.innerHeight, 1), 1) : 0;
+    const cam = state.camera;
+    cam.position.x += (Math.sin(t * 0.12) * 0.45 - cam.position.x) * 0.02;
+    cam.position.y += (1.2 + Math.sin(t * 0.09) * 0.18 + scroll * 1.1 - cam.position.y) * 0.02;
+    cam.position.z += (6.2 - scroll * 1.6 - cam.position.z) * 0.02;
+    cam.lookAt(0, -0.6 + scroll * 0.5, 0);
     if (revealStart.current === null) revealStart.current = t;
     const reveal = THREE.MathUtils.clamp((t - revealStart.current) / 2.4, 0, 1);
     uniforms.uReveal.value = reveal * reveal * (3 - 2 * reveal);
