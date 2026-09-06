@@ -10,7 +10,6 @@ import { Grain } from "~/components/site/Grain";
 import { ScrollReveals } from "~/components/site/ScrollReveals";
 import { SECTION_TYPES } from "~/lib/types";
 
-const Cursor = lazy(() => import("~/components/site/Cursor.client"));
 const SmoothScroll = lazy(() => import("~/components/site/SmoothScroll.client"));
 
 const NAV_TYPES = new Set(["about", "projects", "experience", "skills", "gallery", "contact"]);
@@ -44,7 +43,6 @@ export default function SiteLayout({ loaderData }: Route.ComponentProps) {
       <style dangerouslySetInnerHTML={{ __html: themeVars }} />
       <ClientOnly>
         <SmoothScroll />
-        <Cursor />
       </ClientOnly>
       <Nav items={navItems} />
       <div className="site-page">

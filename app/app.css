@@ -573,38 +573,6 @@
 /* Footer */
 .site-footer { position: relative; padding-top: 4rem; background: var(--color-ink); }
 
-/* Cursor */
-.has-cursor, .has-cursor a, .has-cursor button { cursor: none; }
-.cursor-dot, .cursor-ring {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 100;
-  pointer-events: none;
-  border-radius: 999px;
-  opacity: 0;
-  transform: translate(-50%, -50%);
-}
-.cursor-dot { width: 6px; height: 6px; margin: -3px 0 0 -3px; background: var(--color-accent); }
-.cursor-ring {
-  width: 34px;
-  height: 34px;
-  margin: -17px 0 0 -17px;
-  border: 1px solid color-mix(in srgb, var(--color-paper) 55%, transparent);
-  display: grid;
-  place-items: center;
-  transition: background-color 0.3s, border-color 0.3s;
-}
-.cursor-ring--label { background: var(--color-accent); border-color: var(--color-accent); }
-.cursor-label {
-  font-family: var(--font-mono);
-  font-size: 4px;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--color-ink);
-  transform: scale(1);
-}
-
 /* Grain */
 .grain {
   position: fixed;

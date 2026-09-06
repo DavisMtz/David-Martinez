@@ -24,8 +24,6 @@ function ProjectCard({ p, i, cloudName, className }: { p: Project; i: number; cl
       to={`/proyectos/${p.slug}`}
       className={cx("project-card group", className)}
       style={{ ["--card-accent" as string]: accent }}
-      data-cursor
-      data-cursor-label="Ver"
       prefetch="intent"
     >
       <div className="project-card-media">
