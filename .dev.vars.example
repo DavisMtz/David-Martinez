@@ -1,0 +1,5 @@
+# Copia este archivo a .dev.vars para desarrollo local (nunca lo subas a git)
+ADMIN_PASSWORD=cambia-esta-contraseña
+SESSION_SECRET=una-cadena-larga-y-aleatoria-de-al-menos-32-caracteres
+CLOUDINARY_API_KEY=tu-api-key
+CLOUDINARY_API_SECRET=tu-api-secret
