@@ -54,7 +54,7 @@ Variables (`.dev.vars` en local, `wrangler secret put` en producción):
 
 | Nombre | Uso |
 | --- | --- |
-| `ADMIN_PASSWORD` | contraseña del panel `/admin` |
+| `ADMIN_PASSWORD` | contraseña de arranque del panel `/admin`; una vez cambiada desde Seguridad, deja de usarse |
 | `SESSION_SECRET` | clave HMAC para la cookie de sesión (32+ caracteres aleatorios) |
 | `CLOUDINARY_API_KEY` / `CLOUDINARY_API_SECRET` | credenciales de Cloudinary (solo en el servidor) |
 
@@ -68,10 +68,20 @@ npm run db:migrate:remote                  # aplica migraciones pendientes en D1
 npm run deploy                             # build + wrangler deploy (dominio davidmartinez.logidma.com)
 ```
 
-Para cambiar la contraseña del panel:
+### Contraseña del panel
+
+`ADMIN_PASSWORD` solo sirve para el **primer acceso**. En cuanto se cambia la contraseña desde
+**Panel → Seguridad**, esta se guarda en la base de datos derivada con PBKDF2-SHA256 (sal propia,
+100 000 repeticiones) y el secreto original deja de usarse.
+
+Cambiar la contraseña cierra la sesión en los demás equipos, pero no en el que la cambió: cada cookie
+lleva la versión vigente y deja de valer cuando esa versión sube.
+
+Si alguna vez pierdes el acceso, basta con borrar la contraseña guardada para volver a la del secreto:
 
 ```bash
-npx wrangler secret put ADMIN_PASSWORD
+npx wrangler d1 execute david-martinez --remote --command "DELETE FROM settings WHERE key='admin_auth';"
+npx wrangler secret put ADMIN_PASSWORD   # opcional, para fijar una nueva de arranque
 ```
 
 ### Despliegue automático (opcional)
@@ -90,6 +100,7 @@ npx wrangler secret put ADMIN_PASSWORD
 3. **Proyectos**: portada, galería, historia en Markdown, stack, enlaces y color de acento por proyecto.
 4. **Media**: arrastra imágenes; se suben a Cloudinary (carpeta `portfolio`) y quedan disponibles en cualquier campo de imagen.
 5. **Ajustes**: identidad, redes, SEO, disponibilidad y colores de acento (cambian el tema del sitio en vivo).
+6. **Seguridad**: cambia la contraseña del panel por una tuya.
 
 ## Notas de rendimiento y accesibilidad
 
