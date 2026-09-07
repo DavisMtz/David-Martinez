@@ -1,7 +1,7 @@
 import { Form, Link, NavLink, Outlet } from "react-router";
 import type { Route } from "./+types/layout";
 import { cloudflareContext } from "~/lib/context";
-import { requireAdmin } from "~/lib/auth.server";
+import { isUsingBootstrapPassword, requireAdmin } from "~/lib/auth.server";
 import { repo } from "~/lib/db.server";
 import { AdminContext } from "~/components/admin/context";
 import { cx } from "~/lib/utils";
@@ -19,8 +19,13 @@ export async function loader({ request, context }: Route.LoaderArgs) {
   const { env } = context.get(cloudflareContext);
   await requireAdmin(request, env);
   const r = repo(env);
-  const [counts, media, settings] = await Promise.all([r.counts(), r.listMedia(500), r.getSettings()]);
-  return { counts, media, cloudName: env.CLOUDINARY_CLOUD_NAME, siteUrl: env.SITE_URL, name: settings.name };
+  const [counts, media, settings, usandoInicial] = await Promise.all([
+    r.counts(),
+    r.listMedia(500),
+    r.getSettings(),
+    isUsingBootstrapPassword(env),
+  ]);
+  return { counts, media, cloudName: env.CLOUDINARY_CLOUD_NAME, siteUrl: env.SITE_URL, name: settings.name, usandoInicial };
 }
 
 const NAV = [
@@ -32,10 +37,11 @@ const NAV = [
   { to: "/admin/media", label: "Media" },
   { to: "/admin/mensajes", label: "Mensajes" },
   { to: "/admin/ajustes", label: "Ajustes" },
+  { to: "/admin/seguridad", label: "Seguridad" },
 ];
 
 export default function AdminLayout({ loaderData }: Route.ComponentProps) {
-  const { counts, media, cloudName, siteUrl, name } = loaderData;
+  const { counts, media, cloudName, siteUrl, name, usandoInicial } = loaderData;
   return (
     <AdminContext.Provider value={{ cloudName, media }}>
       <div className="admin-shell">
@@ -71,6 +77,14 @@ export default function AdminLayout({ loaderData }: Route.ComponentProps) {
           </div>
         </aside>
         <main className="admin-main">
+          {usandoInicial && (
+            <Link to="/admin/seguridad" className="admin-bootstrap-notice">
+              <span>
+                Sigues usando la contraseña inicial del despliegue. Cámbiala por una tuya.
+              </span>
+              <span aria-hidden="true">→</span>
+            </Link>
+          )}
           <Outlet />
           <div className="mt-10 flex gap-3 lg:hidden">
             <a href={siteUrl} target="_blank" rel="noreferrer" className="admin-btn admin-btn-outline admin-btn-sm">

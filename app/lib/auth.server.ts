@@ -37,16 +37,96 @@ function timingSafeEqual(a: string, b: string): boolean {
   return out === 0;
 }
 
+/**
+ * Contraseña guardada en la base de datos. Mientras no exista, vale la del
+ * secreto ADMIN_PASSWORD, que sirve para el primer acceso.
+ */
+interface StoredAuth {
+  hash: string;
+  salt: string;
+  iterations: number;
+  /** Sube al cambiar la contraseña: invalida las sesiones abiertas en otros equipos. */
+  tokenVersion: number;
+  updatedAt: string;
+}
+
+/** OWASP recomienda más, pero el Worker tiene un tope de CPU por petición. */
+const PBKDF2_ITERATIONS = 100_000;
+
+function toHex(buf: ArrayBuffer): string {
+  return Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+async function derive(password: string, salt: string, iterations: number): Promise<string> {
+  const key = await crypto.subtle.importKey("raw", enc.encode(password), "PBKDF2", false, ["deriveBits"]);
+  const bits = await crypto.subtle.deriveBits(
+    { name: "PBKDF2", salt: enc.encode(salt), iterations, hash: "SHA-256" },
+    key,
+    256,
+  );
+  return toHex(bits);
+}
+
+export async function readStoredAuth(env: Env): Promise<StoredAuth | null> {
+  const row = await env.DB.prepare("SELECT value FROM settings WHERE key = 'admin_auth'").first<{ value: string }>();
+  if (!row?.value) return null;
+  try {
+    const parsed = JSON.parse(row.value) as StoredAuth;
+    if (!parsed.hash || !parsed.salt) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+/** Guarda una contraseña nueva y deja fuera las sesiones de otros equipos. */
+export async function storePassword(env: Env, password: string): Promise<StoredAuth> {
+  const current = await readStoredAuth(env);
+  const salt = crypto.randomUUID().replace(/-/g, "");
+  const next: StoredAuth = {
+    salt,
+    iterations: PBKDF2_ITERATIONS,
+    hash: await derive(password, salt, PBKDF2_ITERATIONS),
+    tokenVersion: (current?.tokenVersion ?? 0) + 1,
+    updatedAt: new Date().toISOString(),
+  };
+  await env.DB.prepare(
+    "INSERT INTO settings (key, value, updated_at) VALUES ('admin_auth', ?1, ?2) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at",
+  )
+    .bind(JSON.stringify(next), next.updatedAt)
+    .run();
+  return next;
+}
+
+/** ¿Sigue usándose la contraseña inicial del secreto? */
+export async function isUsingBootstrapPassword(env: Env): Promise<boolean> {
+  return (await readStoredAuth(env)) === null;
+}
+
 export async function verifyPassword(env: Env, candidate: string): Promise<boolean> {
+  if (!candidate) return false;
+
+  const stored = await readStoredAuth(env);
+  if (stored) {
+    const hash = await derive(candidate, stored.salt, stored.iterations);
+    return timingSafeEqual(hash, stored.hash);
+  }
+
+  // Todavía no se ha cambiado: vale la del secreto.
   const expected = env.ADMIN_PASSWORD;
-  if (!expected || !candidate) return false;
-  // Compare HMACs of both values so the comparison is constant-time regardless of length.
+  if (!expected) return false;
+  // Se comparan HMACs para que el tiempo no dependa de la longitud.
   const [a, b] = await Promise.all([sign(env.SESSION_SECRET, candidate), sign(env.SESSION_SECRET, expected)]);
   return timingSafeEqual(a, b);
 }
 
-export async function createSessionCookie(env: Env): Promise<string> {
-  const payload = b64url(enc.encode(JSON.stringify({ iat: Date.now(), exp: Date.now() + MAX_AGE * 1000, n: crypto.randomUUID() })));
+export async function createSessionCookie(env: Env, tokenVersion?: number): Promise<string> {
+  const v = tokenVersion ?? (await readStoredAuth(env))?.tokenVersion ?? 0;
+  const payload = b64url(
+    enc.encode(JSON.stringify({ iat: Date.now(), exp: Date.now() + MAX_AGE * 1000, v, n: crypto.randomUUID() })),
+  );
   const sig = await sign(env.SESSION_SECRET, payload);
   const value = `${payload}.${sig}`;
   return `${COOKIE}=${value}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${MAX_AGE}`;
@@ -75,8 +155,11 @@ export async function isAuthenticated(request: Request, env: Env): Promise<boole
   const expected = await sign(env.SESSION_SECRET, payload);
   if (!timingSafeEqual(expected, sig)) return false;
   try {
-    const data = JSON.parse(fromB64url(payload)) as { exp: number };
-    return typeof data.exp === "number" && data.exp > Date.now();
+    const data = JSON.parse(fromB64url(payload)) as { exp: number; v?: number };
+    if (typeof data.exp !== "number" || data.exp <= Date.now()) return false;
+    // Si la contraseña cambió después de emitirse esta cookie, ya no vale.
+    const expectedVersion = (await readStoredAuth(env))?.tokenVersion ?? 0;
+    return (data.v ?? 0) === expectedVersion;
   } catch {
     return false;
   }

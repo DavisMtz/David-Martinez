@@ -15,6 +15,7 @@ export default [
     layout("routes/admin/layout.tsx", [
       index("routes/admin/dashboard.tsx"),
       route("ajustes", "routes/admin/settings.tsx"),
+      route("seguridad", "routes/admin/security.tsx"),
       route("secciones", "routes/admin/sections.tsx"),
       route("secciones/:id", "routes/admin/section-edit.tsx"),
       route("proyectos", "routes/admin/projects.tsx"),
