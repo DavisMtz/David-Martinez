@@ -14,7 +14,7 @@ export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
   {
     rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Syne:wght@400..800&family=Geist:wght@300..700&family=Geist+Mono:wght@400..600&display=swap",
+    href: "https://fonts.googleapis.com/css2?family=Archivo:wght@400..900&family=Geist:wght@300..700&family=Geist+Mono:wght@400..600&display=swap",
   },
   { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
 ];
@@ -30,7 +30,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body className="bg-ink text-paper antialiased">
-        <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
         {children}
         <ScrollRestoration />
         <Scripts />

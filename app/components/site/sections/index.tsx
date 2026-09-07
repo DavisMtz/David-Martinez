@@ -7,6 +7,7 @@ import { Skills } from "./Skills";
 import { Gallery } from "./Gallery";
 import { Marquee } from "./Marquee";
 import { Stats } from "./Stats";
+import { Quotes } from "./Quotes";
 import { Text } from "./Text";
 import { Contact } from "./Contact";
 
@@ -35,6 +36,8 @@ export function SectionRenderer({ section, index, data }: { section: Section; in
       return <Marquee section={section} />;
     case "stats":
       return <Stats section={section} index={index} />;
+    case "quotes":
+      return <Quotes section={section} index={index} />;
     case "text":
       return <Text section={section} index={index} />;
     case "contact":

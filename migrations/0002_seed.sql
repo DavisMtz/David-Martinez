@@ -24,6 +24,7 @@ INSERT OR IGNORE INTO settings (key, value) VALUES ('site', json('{
     {"label": "Instagram", "url": "https://www.instagram.com/davidmartinezarredondo", "handle": "@davidmartinezarredondo"},
     {"label": "X", "url": "https://x.com/PensadorLogico_", "handle": "@PensadorLogico_"},
     {"label": "TikTok", "url": "https://www.tiktok.com/@filosofiadavica", "handle": "@filosofiadavica"},
+    {"label": "YouTube", "url": "https://www.youtube.com/channel/UC8CW-Qx6UMZZW97VxpoufLg", "handle": "@DavarCoreOficial"},
     {"label": "Twitch", "url": "https://www.twitch.tv/filosofomtz", "handle": "filosofomtz"},
     {"label": "Facebook", "url": "https://www.facebook.com/davis.martinesad", "handle": "davis.martinesad"},
     {"label": "Reddit", "url": "https://www.reddit.com/user/Open-Agency-4437/", "handle": "u/Open-Agency-4437"},

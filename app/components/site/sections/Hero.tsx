@@ -58,14 +58,24 @@ export function Hero({ section }: { section: Section }) {
       const el = root.current;
       if (!el) return;
       const reduced = prefersReducedMotion();
-      const tl = gsap.timeline({ defaults: { ease: "expo.out" } });
+      const waitingForIntro = document.documentElement.dataset.intro === "running";
+      const tl = gsap.timeline({ defaults: { ease: "expo.out" }, paused: waitingForIntro });
+      let onReveal: (() => void) | undefined;
+      if (waitingForIntro) {
+        onReveal = () => tl.play();
+        window.addEventListener("cinema:reveal", onReveal, { once: true });
+      }
       const headline = el.querySelector<HTMLElement>(".hero-headline");
       if (headline && !reduced) {
         const split = SplitText.create(headline, { type: "lines,words", mask: "lines", autoSplit: true, linesClass: "split-line" });
-        tl.from(split.words, { yPercent: 110, rotate: 2, duration: 1.4, stagger: 0.06 }, 0.15);
+        tl.from(split.words, { yPercent: 118, rotate: 2.5, duration: 1.9, stagger: 0.075 }, 0.15);
       }
-      tl.to(el.querySelectorAll(".hero-fade"), { opacity: 1, y: 0, duration: 1.2, stagger: 0.1 }, reduced ? 0 : 0.7);
-      tl.to(el.querySelectorAll(".hero-line"), { scaleX: 1, duration: 1.6, ease: "expo.inOut" }, 0.4);
+      tl.to(el.querySelectorAll(".hero-fade"), { opacity: 1, y: 0, filter: "blur(0px)", duration: 1.6, stagger: 0.14 }, reduced ? 0 : 0.85);
+      tl.to(el.querySelectorAll(".hero-line"), { scaleX: 1, duration: 2.1, ease: "expo.inOut" }, 0.5);
+
+      return () => {
+        if (onReveal) window.removeEventListener("cinema:reveal", onReveal);
+      };
     },
     { scope: root },
   );

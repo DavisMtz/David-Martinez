@@ -30,11 +30,11 @@ export function Reveal({ children, as: Tag = "div", className, type = "lines", d
         onSplit: (self) => {
           const targets = type === "chars" ? self.chars : type === "words" ? self.words : self.lines;
           return gsap.from(targets, {
-            yPercent: 110,
-            rotate: type === "lines" ? 1.5 : 0,
-            duration: 1.1,
+            yPercent: 118,
+            rotate: type === "lines" ? 2 : 0,
+            duration: 1.6,
             ease: "expo.out",
-            stagger: type === "chars" ? 0.015 : type === "words" ? 0.035 : 0.09,
+            stagger: type === "chars" ? 0.022 : type === "words" ? 0.05 : 0.13,
             delay,
             scrollTrigger: { trigger: el, start, once: true },
           });
