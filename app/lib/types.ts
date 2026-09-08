@@ -159,6 +159,9 @@ export interface SiteSettings {
   accent: string;
   accent2: string;
   locale: string;
+  motionMode: "immersive" | "subtle" | "still";
+  showJourney: boolean;
+  introEnabled: boolean;
 }
 
 export const DEFAULT_SETTINGS: SiteSettings = {
@@ -189,4 +192,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   accent: "#38e0ff",
   accent2: "#7c8cff",
   locale: "es-MX",
+  motionMode: "immersive",
+  showJourney: true,
+  introEnabled: false,
 };

@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Link } from "react-router";
 import type { Project, Section } from "~/lib/types";
 import { resolveContent } from "~/lib/sections";
@@ -18,6 +18,7 @@ interface ProjectsContent {
 const STATUS_LABEL: Record<string, string> = { live: "en línea", building: "en construcción", archived: "archivado", concept: "concepto" };
 
 function ProjectCard({ p, i, cloudName, className }: { p: Project; i: number; cloudName: string; className?: string }) {
+  const [failed, setFailed] = useState(false);
   const accent = p.accent || "var(--color-accent)";
   return (
     <Link
@@ -27,18 +28,20 @@ function ProjectCard({ p, i, cloudName, className }: { p: Project; i: number; cl
       prefetch="intent"
     >
       <div className="project-card-media">
-        {p.cover_image ? (
+        {p.cover_image && !failed ? (
           <img
             src={imageUrl(p.cover_image, cloudName, { w: 1200, h: 750, crop: "fill" })}
             srcSet={srcSet(p.cover_image, cloudName, [640, 960, 1280, 1600], { h: 750, crop: "fill" })}
             sizes="(min-width: 1024px) 60vw, 100vw"
+            onError={() => setFailed(true)}
             alt={p.title}
             loading={i < 2 ? "eager" : "lazy"}
             decoding="async"
           />
         ) : (
           <div className="project-card-placeholder">
-            <span className="font-display text-[clamp(3rem,10vw,8rem)] font-extrabold leading-none tracking-tighter text-paper/10">{p.title}</span>
+            <div className="project-fallback-top"><span>{String(i+1).padStart(2,"0")} / {p.year}</span><span>{STATUS_LABEL[p.status] ?? p.status}</span></div>
+            <div className="self-end"><p className="project-fallback-name">{p.title}</p><p className="project-fallback-tags">{p.tags.slice(0,3).join(" / ")}</p></div>
           </div>
         )}
         <div className="project-card-glow" aria-hidden="true" />
@@ -80,7 +83,7 @@ export function Projects({ section, index, projects }: { section: Section; index
   useGSAP(
     () => {
       registerGsap();
-      if (c.layout !== "rail") return;
+      if (c.layout !== "rail" || prefersReducedMotion()) return;
       const mm = gsap.matchMedia();
       mm.add("(min-width: 1024px) and (prefers-reduced-motion: no-preference)", () => {
         const t = track.current;

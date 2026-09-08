@@ -15,7 +15,7 @@ export function registerGsap() {
 }
 
 export function prefersReducedMotion(): boolean {
-  return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  return typeof window !== "undefined" && (window.matchMedia("(prefers-reduced-motion: reduce)").matches || document.querySelector(".universe-site")?.getAttribute("data-motion") === "still");
 }
 
 /**

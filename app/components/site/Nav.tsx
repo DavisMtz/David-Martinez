@@ -33,6 +33,12 @@ export function Nav({ items }: { items: NavItem[] }) {
     return () => document.documentElement.classList.remove("menu-open");
   }, [open]);
 
+  useEffect(() => {
+    const close = (e: KeyboardEvent) => { if (e.key === "Escape") { setOpen(false); document.querySelector<HTMLButtonElement>(".menu-btn")?.focus(); } };
+    window.addEventListener("keydown", close);
+    return () => window.removeEventListener("keydown", close);
+  }, []);
+
   const href = (id: string) => (onHome ? `#${id}` : `/#${id}`);
   const status = settings.availability;
 
@@ -74,7 +80,7 @@ export function Nav({ items }: { items: NavItem[] }) {
           <span className="font-mono text-[11px] uppercase tracking-[0.25em]">{open ? "cerrar" : "menú"}</span>
         </button>
       </header>
-      <div id="mobile-menu" className={cx("mobile-menu", open && "mobile-menu--open")} aria-hidden={!open}>
+      <div id="mobile-menu" className={cx("mobile-menu", open && "mobile-menu--open")} aria-hidden={!open} inert={!open}>
         <nav className="flex flex-col gap-2">
           {items.map((item, i) => (
             <a key={item.id} href={href(item.id)} className="mobile-link" onClick={() => setOpen(false)}>

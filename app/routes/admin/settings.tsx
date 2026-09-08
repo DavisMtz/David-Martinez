@@ -2,7 +2,7 @@ import { Form, data, useNavigation } from "react-router";
 import type { Route } from "./+types/settings";
 import { cloudflareContext } from "~/lib/context";
 import { repo } from "~/lib/db.server";
-import { PageHeader, Card, Field, Input, Textarea, Select, Button, Notice } from "~/components/admin/ui";
+import { PageHeader, Card, Field, Input, Textarea, Select, Button, Notice, Toggle } from "~/components/admin/ui";
 import { ImagePicker } from "~/components/admin/ImagePicker";
 import { ObjectsEditor } from "~/components/admin/ObjectsEditor";
 import { parseList, str } from "~/lib/utils";
@@ -46,6 +46,9 @@ export async function action({ request, context }: Route.ActionArgs) {
     accent: str(form.get("accent")) || "#38e0ff",
     accent2: str(form.get("accent2")) || "#7c8cff",
     locale: str(form.get("locale")) || "es-MX",
+    motionMode: ["immersive", "subtle", "still"].includes(String(form.get("motionMode"))) ? form.get("motionMode") as SiteSettings["motionMode"] : "immersive",
+    showJourney: form.getAll("showJourney").includes("1"),
+    introEnabled: form.getAll("introEnabled").includes("1"),
   };
   if (!patch.name) return data({ ok: false, error: "El nombre es obligatorio." }, { status: 400 });
   await repo(env).saveSettings(patch);
@@ -152,6 +155,22 @@ export default function Settings({ loaderData, actionData }: Route.ComponentProp
         </div>
       </Card>
 
+      <Card title="Experiencia visual">
+        <div className="grid gap-5 md:grid-cols-2">
+          <Field label="Movimiento al recorrer la página" help="La preferencia de movimiento reducido del visitante siempre tiene prioridad.">
+            <Select name="motionMode" defaultValue={s.motionMode}>
+              <option value="immersive">Inmersivo · profundidad y transformaciones</option>
+              <option value="subtle">Sutil · entradas suaves</option>
+              <option value="still">Sin animaciones</option>
+            </Select>
+          </Field>
+          <div className="flex flex-col gap-4">
+            <Toggle name="showJourney" label="Mostrar recorrido y sección actual" defaultChecked={s.showJourney} />
+            <Toggle name="introEnabled" label="Mostrar apertura al entrar" defaultChecked={s.introEnabled} />
+          </div>
+          <p className="text-sm text-muted md:col-span-2">En Secciones → Hero puedes cambiar las órbitas por ondas o cuadrícula, ajustar luminosidad y velocidad, y editar sus conceptos. Textos, fotografías, proyectos y orden de las secciones siguen en sus apartados habituales.</p>
+        </div>
+      </Card>
       <Card title="Apariencia">
         <div className="grid gap-4 md:grid-cols-3">
           <Field label="Color de acento">

@@ -1,72 +1,30 @@
 import { useLocation } from "react-router";
+import { useSite } from "./context";
 import { gsap, isLowPowerDevice, prefersReducedMotion, registerGsap, ScrollTrigger, useGSAP } from "~/lib/motion";
 
-/**
- * Trata cada sección como un plano: al salir del encuadre se aleja y se apaga,
- * de modo que el paso entre secciones se sienta como un cambio de plano.
- *
- * Solo se animan `transform` y `opacity`, que el compositor resuelve sin
- * repintar. Se probó con `filter: blur()` y hundía el scroll a 5 fps.
- */
 export function ScrollCinema() {
   const location = useLocation();
-
-  useGSAP(
-    () => {
-      registerGsap();
-      if (prefersReducedMotion() || isLowPowerDevice()) return;
-
-      const mm = gsap.matchMedia();
-      mm.add("(min-width: 768px)", () => {
-        const sections = gsap.utils.toArray<HTMLElement>("[data-section]");
-        const targets: HTMLElement[] = [];
-
-        sections.forEach((section) => {
-          const inner = (section.firstElementChild as HTMLElement | null) ?? section;
-          targets.push(inner);
-
-          // Salida: el plano se aleja.
-          gsap.to(inner, {
-            scale: 0.93,
-            opacity: 0.2,
-            ease: "none",
-            scrollTrigger: {
-              trigger: section,
-              start: "bottom 80%",
-              end: "bottom 10%",
-              scrub: 0.5,
-            },
-          });
-
-          // Entrada: llega desde el fondo. El hero ya nace en cámara.
-          if (section.dataset.section !== "hero") {
-            gsap.fromTo(
-              inner,
-              { scale: 1.06, opacity: 0.25 },
-              {
-                scale: 1,
-                opacity: 1,
-                ease: "none",
-                scrollTrigger: {
-                  trigger: section,
-                  start: "top 95%",
-                  end: "top 55%",
-                  scrub: 0.5,
-                },
-              },
-            );
-          }
-        });
-
-        gsap.set(targets, { transformOrigin: "center center" });
-        return () => gsap.set(targets, { clearProps: "scale,opacity,transformOrigin" });
+  const { settings } = useSite();
+  useGSAP(() => {
+    registerGsap();
+    if (prefersReducedMotion() || isLowPowerDevice() || settings.motionMode !== "immersive") return;
+    const mm = gsap.matchMedia();
+    mm.add("(min-width: 768px)", () => {
+      // Distinct rhythms: dissolve the hero, reveal biography, open the philosophical text.
+      // Never transform the pinned projects track or dim long sections while still reading.
+      gsap.to(".hero-copy", { y: -65, opacity: .25, ease: "none", scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom 15%", scrub: .8 } });
+      gsap.utils.toArray<HTMLElement>('[data-section="about"], [data-section="experience"], [data-section="quotes"]').forEach(section => {
+        const inner = section.firstElementChild;
+        if (!inner) return;
+        gsap.from(inner, { y: 45, duration: 1, ease: "none", scrollTrigger: { trigger: section, start: "top 95%", end: "top 55%", scrub: .8 } });
       });
-
-      ScrollTrigger.refresh();
-      return () => mm.revert();
-    },
-    { dependencies: [location.pathname] },
-  );
-
+      gsap.utils.toArray<HTMLElement>('[data-section="text"]').forEach(section => {
+        const text = section.querySelector(".prose-editorial");
+        if (text) gsap.fromTo(text, { scale: .94 }, { scale: 1, ease: "none", scrollTrigger: { trigger: section, start: "top 85%", end: "center center", scrub: 1 } });
+      });
+    });
+    ScrollTrigger.refresh();
+    return () => mm.revert();
+  }, { dependencies: [location.pathname, settings.motionMode] });
   return null;
 }

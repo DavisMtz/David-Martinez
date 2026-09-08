@@ -8,6 +8,7 @@ import { Nav, type NavItem } from "~/components/site/Nav";
 import { Footer } from "~/components/site/Footer";
 import { Grain } from "~/components/site/Grain";
 import { ScrollReveals } from "~/components/site/ScrollReveals";
+import { Journey } from "~/components/site/Journey";
 import { ScrollCinema } from "~/components/site/ScrollCinema";
 import { SECTION_TYPES } from "~/lib/types";
 
@@ -43,21 +44,24 @@ export default function SiteLayout({ loaderData }: Route.ComponentProps) {
   const themeVars = `:root{--color-accent:${settings.accent};--color-accent-2:${settings.accent2};}`;
   return (
     <SiteContext.Provider value={{ settings, cloudName, siteUrl }}>
+      <div className="universe-site" data-motion={settings.motionMode}>
+      <a href="#site-content" className="skip-link">Saltar al contenido</a>
       <style dangerouslySetInnerHTML={{ __html: themeVars }} />
       <ClientOnly>
         <SmoothScroll />
-        <Intro />
+        {settings.introEnabled && <Intro />}
         <PageTransition />
       </ClientOnly>
       <Nav items={navItems} />
-      <div className="site-page">
+      <div className="site-page" id="site-content" tabIndex={-1}>
         <Outlet />
       </div>
       <Footer />
-      <div className="vignette" aria-hidden="true" />
+      {settings.showJourney && <Journey />}
       <Grain />
       <ScrollReveals />
       <ScrollCinema />
+      </div>
     </SiteContext.Provider>
   );
 }
